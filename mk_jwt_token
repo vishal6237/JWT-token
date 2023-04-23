@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# 
+# usage: JWT_SECRET="silly" mk-jwt-token 
+# @WARN: modify the payload and header to your needs.
+#  
+
+rm "token.jwt"
+JWT_SECRET="fantasticjwt"
+
+#header='{"alg":"HS256","typ":"JWT","kid":"0001"}'
+
+#payload='{"name":"Quotation System","sub":"quotes","iss":"My API Gateway"}'
+
+#header_base64=$(echo -n  "$header" | base64 | tr '+/' '-_' | tr -d '=')
+#payload_base64=$(echo -n "$payload" | base64 | tr '+/' '-_' | tr -d '=')
+#echo "Header encoded $header_base64"
+#echo "paylod_encoded $payload_base64"
+#signed_content="${header_base64}.${payload_base64}"
+#echo "signed content = $signed_content"
+#signature=$(echo -n "$signed_content" | openssl dgst -binary -sha256 -hmac "$JWT_SECRET" | base64 | tr '+/' '-_' | tr -d '=')
+#echo "signature = $signature"
+
+header=$(echo -n '{"typ":"JWT","alg":"HS256","kid":"0001"}' | base64 | tr '+/' '-_' | tr -d '=')
+payload=$(echo -n '{"name":"demo User","sub":"quotes","iss":"My API Gateway"}' | base64 | tr '+/' '-_' | tr -d '=' | tr -d '\n')
+HEADER_PAYLOAD="$header.$payload"
+signature=$(echo -n $HEADER_PAYLOAD | openssl dgst -binary -sha256 -hmac fantasticjwt | base64 | tr '+/' '-_' | tr -d '=')
+token_jwt="$HEADER_PAYLOAD.$signature"
+echo "$token_jwt" > "token.jwt"
+echo "$token_jwt"
