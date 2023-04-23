@@ -5,6 +5,7 @@
 #  
 
 rm "token.jwt"
+USRNAME="HKJC"
 JWT_SECRET="fantasticjwt"
 expire_seconds="${JWT_EXPIRATION_IN_SECONDS:-360}"
 up_iat="$(date +%s)"
@@ -28,8 +29,8 @@ echo $up_exp $up_iat
 echo -n "{"name":"Vishal Dagar","sub":"quotes","iss":"My API Gateway","iat":$up_iat,"exp":"$up_exp","nbf":"$up_nbf"}"
 header=$(echo -n '{"typ":"JWT","alg":"HS256","kid":"0001"}' | base64 | tr '+/' '-_' | tr -d '=')
 payload=$(echo -n "{
-		\"name\":\"Vishal Dagar\",
-		\"sub\":\"quotes\",
+		\"name\":\"${USRNAME}\",
+		\"sub\":\"Demo JWT\",
 		\"iss\":\"My API Gateway\",
 		\"iat\": \"${up_iat}\",
 		\"exp\": \"${up_exp}\",
