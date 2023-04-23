@@ -6,6 +6,11 @@
 
 rm "token.jwt"
 JWT_SECRET="fantasticjwt"
+expire_seconds="${JWT_EXPIRATION_IN_SECONDS:-360}"
+up_iat="$(date +%s)"
+up_exp="$(($(date +%s)+expire_seconds))"
+up_nbf="$(($(date +%s)-1))"
+echo $up_exp $up_iat
 
 #header='{"alg":"HS256","typ":"JWT","kid":"0001"}'
 
@@ -20,10 +25,18 @@ JWT_SECRET="fantasticjwt"
 #signature=$(echo -n "$signed_content" | openssl dgst -binary -sha256 -hmac "$JWT_SECRET" | base64 | tr '+/' '-_' | tr -d '=')
 #echo "signature = $signature"
 
+echo -n "{"name":"Vishal Dagar","sub":"quotes","iss":"My API Gateway","iat":$up_iat,"exp":"$up_exp","nbf":"$up_nbf"}"
 header=$(echo -n '{"typ":"JWT","alg":"HS256","kid":"0001"}' | base64 | tr '+/' '-_' | tr -d '=')
-payload=$(echo -n '{"name":"demo User","sub":"quotes","iss":"My API Gateway"}' | base64 | tr '+/' '-_' | tr -d '=' | tr -d '\n')
+payload=$(echo -n "{
+		\"name\":\"Vishal Dagar\",
+		\"sub\":\"quotes\",
+		\"iss\":\"My API Gateway\",
+		\"iat\": \"${up_iat}\",
+		\"exp\": \"${up_exp}\",
+		\"nbf\": \"${up_nbf}\"
+		}" | base64 | tr '+/' '-_' | tr -d '=' | tr -d '\n')
 HEADER_PAYLOAD="$header.$payload"
-signature=$(echo -n $HEADER_PAYLOAD | openssl dgst -binary -sha256 -hmac fantasticjwt | base64 | tr '+/' '-_' | tr -d '=')
+signature=$(echo -n $HEADER_PAYLOAD | openssl dgst -binary -sha256 -hmac $JWT_SECRET | base64 | tr '+/' '-_' | tr -d '=')
 token_jwt="$HEADER_PAYLOAD.$signature"
 echo "$token_jwt" > "token.jwt"
 echo "$token_jwt"
